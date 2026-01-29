@@ -8,6 +8,13 @@ export interface Finding {
     message: string;
     details?: string;
     count?: number;
+    wcagCriterion?: string;
+    wcagName?: string;
+    wcagLevel?: 'A' | 'AA' | 'AAA';
+    wcagPrinciple?: string;
+    pageUrl?: string;
+    remediation?: string;
+    elements?: string[];
 }
 
 export interface Summary {
@@ -16,6 +23,15 @@ export interface Summary {
     high: number;
     medium: number;
     low: number;
+    accessibilityScore?: number;
+}
+
+export interface PageResult {
+    pageUrl: string;
+    pageTitle?: string;
+    accessibilityScore: number;
+    findings: Finding[];
+    summary: Summary;
 }
 
 export interface ScanResult {
@@ -25,7 +41,10 @@ export interface ScanResult {
     teaser: {
         topIssue: string;
         issueCount: number;
+        accessibilityScore?: number;
     };
+    pagesScanned?: number;
+    pageResults?: PageResult[];
     error?: string;
     cached?: boolean;
 }
@@ -36,6 +55,7 @@ export interface UnlockResult {
     summary?: Summary;
     websiteUrl?: string;
     reportSent?: boolean;
+    pageResults?: PageResult[];
     error?: string;
 }
 
@@ -135,4 +155,33 @@ export function getSeverityBgColor(severity: Finding['severity']): string {
         default:
             return 'bg-gray-100 text-gray-800';
     }
+}
+
+// Get WCAG level badge class
+export function getWcagLevelClass(level: string): string {
+    switch (level) {
+        case 'A':
+            return 'bg-emerald-100 text-emerald-800';
+        case 'AA':
+            return 'bg-violet-100 text-violet-800';
+        case 'AAA':
+            return 'bg-indigo-100 text-indigo-800';
+        default:
+            return 'bg-gray-100 text-gray-800';
+    }
+}
+
+// Get accessibility score color
+export function getScoreColor(score: number): string {
+    if (score >= 90) return 'text-green-600';
+    if (score >= 70) return 'text-yellow-600';
+    if (score >= 50) return 'text-orange-600';
+    return 'text-red-600';
+}
+
+export function getScoreRingColor(score: number): string {
+    if (score >= 90) return 'border-green-500';
+    if (score >= 70) return 'border-yellow-500';
+    if (score >= 50) return 'border-orange-500';
+    return 'border-red-500';
 }
