@@ -177,9 +177,9 @@ function generateReportEmail(scan: ScanResult): string {
         <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e5e7eb;">
             <tbody>
                 ${findings.sort((a, b) => {
-                    const order = { critical: 0, high: 1, medium: 2, low: 3 };
-                    return order[a.severity] - order[b.severity];
-                }).map(generateFindingHtml).join("")}
+            const order = { critical: 0, high: 1, medium: 2, low: 3 };
+            return order[a.severity] - order[b.severity];
+        }).map(generateFindingHtml).join("")}
             </tbody>
         </table>
         `
@@ -322,13 +322,15 @@ async function sendSlackNotification(email: string, scan: ScanResult): Promise<v
 
     const { summary, website_url, pages_scanned } = scan;
     const score = summary.accessibilityScore || 0;
+    const isHotLead = score < 60;
+    const header = isHotLead ? "🔥 HOT LEAD 🔥 High Potential Client!" : "New scan report unlocked!";
 
     try {
         await fetch(SLACK_WEBHOOK_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                text: `New scan report unlocked!\n*Email:* ${email}\n*Website:* ${website_url}\n*Score:* ${score}/100\n*Pages:* ${pages_scanned || 1}\n*Issues:* ${summary.critical} critical, ${summary.high} high, ${summary.medium} medium, ${summary.low} low`,
+                text: `${header}\n*Email:* ${email}\n*Website:* ${website_url}\n*Score:* ${score}/100\n*Pages:* ${pages_scanned || 1}\n*Issues:* ${summary.critical} critical, ${summary.high} high, ${summary.medium} medium, ${summary.low} low`,
             }),
         });
     } catch (error) {

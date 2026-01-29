@@ -14,6 +14,7 @@ import {
   getScoreColor,
   getScoreRingColor,
 } from "../lib/scanner";
+import { trackEvent, identifyUser } from "../lib/analytics";
 
 type ScannerState =
   | "IDLE"
@@ -47,6 +48,7 @@ const Hero = () => {
     }
 
     setState("SCANNING");
+    trackEvent("scan_started", { url: websiteUrl });
 
     try {
       const result = await startScan(websiteUrl);
@@ -54,11 +56,17 @@ const Hero = () => {
       if (!result.success) {
         toast.error(result.error || "Failed to scan website");
         setState("IDLE");
+        trackEvent("scan_failed", { url: websiteUrl, error: result.error });
         return;
       }
 
       setScanResult(result);
       setState("RESULTS_PREVIEW");
+      trackEvent("scan_completed", {
+        url: websiteUrl,
+        score: result.summary.accessibilityScore,
+        issues: result.summary.total
+      });
 
       if (result.cached) {
         toast.info("Using cached scan results (scanned within the last hour)");
@@ -68,6 +76,7 @@ const Hero = () => {
         error instanceof Error ? error.message : "Something went wrong";
       toast.error(message);
       setState("IDLE");
+      trackEvent("scan_failed", { url: websiteUrl, error: message });
     }
   };
 
@@ -99,6 +108,9 @@ const Hero = () => {
       setFullReport(result);
       setState("REPORT_SENT");
       toast.success("Full report sent to your email!");
+
+      identifyUser(email);
+      trackEvent("report_unlocked", { email, url: websiteUrl });
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Something went wrong";
