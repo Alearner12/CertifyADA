@@ -35,10 +35,24 @@ serve(async (req) => {
                     'Authorization': `Bearer ${RESEND_KEY}`,
                 },
                 body: JSON.stringify({
-                    from: 'Comply <onboarding@resend.dev>',
+                    from: 'Comply <hello@send.getcomply.tech>',
                     to: [email],
-                    subject: 'Welcome to Comply Waitlist!',
-                    html: '<h1>Thanks for joining!</h1><p>We will notify you when we launch.</p>',
+                    subject: 'Welcome to the Comply Waitlist',
+                    html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                            <h1 style="color: #1a1a1a;">Welcome to Comply!</h1>
+                            <p style="color: #4a4a4a; font-size: 16px; line-height: 1.5;">
+                                Thanks for joining our waitlist. We're building the most advanced ADA compliance scanner for modern web teams.
+                            </p>
+                            <p style="color: #4a4a4a; font-size: 16px; line-height: 1.5;">
+                                We'll reach out as soon as we open up early access spots.
+                            </p>
+                            <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 30px 0;">
+                            <p style="color: #888; font-size: 14px;">
+                                - The Comply Team
+                            </p>
+                        </div>
+                    `,
                 }),
             });
             result.emailStatus = res.status;
